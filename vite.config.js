@@ -3,28 +3,24 @@ import glob from 'glob';
 import injectHTML from 'vite-plugin-html-inject';
 import FullReload from 'vite-plugin-full-reload';
 
-export default defineConfig(({ command }) => {
-    return {
-      base: command === 'build' ? '/goit-js-hw-111/' : '/',  // добавляем базовый путь для GitHub Pages
-      define: {
-        [command === 'serve' ? 'global' : '_global']: {},
-      },
-      root: 'src',
-      build: {
-        sourcemap: true,
-        rollupOptions: {
-          input: glob.sync('./src/*.html'),
-          output: {
-            manualChunks(id) {
-              if (id.includes('node_modules')) {
-                return 'vendor';
-              }
-            },
-            entryFileNames: 'commonHelpers.js',
-          },
+export default defineConfig({
+  base: '/goit-js-hw-111/',  // Базовый путь для GitHub Pages
+  root: 'src',
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      input: glob.sync('./src/*.html'), // Убедитесь, что пути к входным файлам указаны правильно
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor'; // Это создаст отдельный чанк для зависимостей
+          }
         },
-        outDir: '../dist',
+        entryFileNames: 'commonHelpers.js',
       },
-      plugins: [injectHTML(), FullReload(['./src/**/**.html'])],
-    };
-  });
+    },
+    outDir: '../dist',
+    emptyOutDir: true, // Очищает папку dist перед новой сборкой
+  },
+  plugins: [injectHTML(), FullReload(['./src/**/**.html'])],
+});
